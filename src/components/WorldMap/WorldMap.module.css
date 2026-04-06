@@ -1,0 +1,319 @@
+.worldmap {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── Left Panel: Tile Palette ── */
+.palettePanel {
+  width: 180px;
+  flex-shrink: 0;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panelHeader {
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panelTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+}
+
+.paletteList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.paletteItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 9px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.12s;
+}
+
+.paletteItem:hover { background: var(--bg-hover); }
+
+.paletteItem.selected {
+  border-color: var(--accent);
+  background: var(--bg-card);
+}
+
+.paletteThumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.paletteName {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eraseBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 9px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.12s;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.eraseBtn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.eraseBtn.selected { border-color: var(--danger); background: rgba(239,68,68,0.1); color: var(--danger); }
+
+.noPalette {
+  padding: 16px 12px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+/* ── Center: Main workspace ── */
+.mainArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.viewBtns {
+  display: flex;
+  background: var(--bg-mid);
+  border-radius: 9px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.viewBtn {
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.12s;
+}
+
+.viewBtn:hover { color: var(--text-primary); }
+.viewBtn.active { background: var(--bg-card); color: var(--text-primary); }
+
+.roomName {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.startBadge {
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--success);
+  color: #fff;
+  font-weight: 700;
+}
+
+.setStartBtn {
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--bg-mid);
+  color: var(--text-secondary);
+  transition: all 0.12s;
+}
+
+.setStartBtn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.toolGroup {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.toolBtn {
+  padding: 6px 10px;
+  border-radius: 7px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  background: var(--bg-mid);
+  color: var(--text-secondary);
+  transition: all 0.12s;
+}
+
+.toolBtn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.toolBtn.active { border-color: var(--accent); background: var(--bg-card); color: var(--text-primary); }
+
+/* Map grid view */
+.mapView {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.mapGrid {
+  display: inline-grid;
+  gap: 6px;
+}
+
+.mapCell {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  border: 2px dashed rgba(255,255,255,0.12);
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-panel);
+}
+
+.mapCell:hover {
+  border-color: rgba(99,102,241,0.5);
+  background: rgba(99,102,241,0.05);
+}
+
+.mapCell.hasRoom {
+  border-style: solid;
+  border-color: rgba(255,255,255,0.15);
+  cursor: pointer;
+}
+
+.mapCell.hasRoom:hover {
+  border-color: var(--accent);
+  transform: scale(1.03);
+}
+
+.mapCell.isStart {
+  border-color: var(--success) !important;
+}
+
+.mapCell.isActive {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mapCellPreview {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.mapCellAdd {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: rgba(255,255,255,0.2);
+}
+
+.mapCellAdd:hover { color: rgba(99,102,241,0.7); }
+
+.mapCellBadge {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  font-size: 0.6rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-weight: 700;
+  background: var(--success);
+  color: #fff;
+}
+
+.mapCellName {
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.5);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+/* Room editor view */
+.roomView {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: 16px;
+}
+
+.roomCanvas {
+  image-rendering: pixelated;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.12);
+  cursor: crosshair;
+  max-width: 100%;
+  max-height: calc(100vh - 160px);
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .palettePanel { width: 140px; }
+}
+
+@media (max-width: 600px) {
+  .worldmap { flex-direction: column; }
+  .palettePanel {
+    width: 100%;
+    height: 90px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-direction: row;
+  }
+  .paletteList { flex-direction: row; overflow-x: auto; padding: 6px; }
+}

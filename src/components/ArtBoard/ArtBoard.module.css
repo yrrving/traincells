@@ -1,0 +1,407 @@
+.artboard {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  gap: 0;
+}
+
+/* ── Left Panel: Tile Library ── */
+.tilePanel {
+  width: 200px;
+  flex-shrink: 0;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panelTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 7px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  transition: background 0.15s;
+}
+
+.addBtn:hover { background: var(--accent-hover); }
+
+.tileList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tileItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.12s;
+  border: 1px solid transparent;
+}
+
+.tileItem:hover {
+  background: var(--bg-hover);
+  border-color: var(--border);
+}
+
+.tileItem.selected {
+  background: var(--bg-card);
+  border-color: var(--accent);
+}
+
+.tileThumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.tileInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.tileName {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tileType {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 1px;
+}
+
+.tileDel {
+  opacity: 0;
+  transition: opacity 0.12s;
+  color: var(--danger);
+  font-size: 0.85rem;
+  padding: 4px;
+  border-radius: 5px;
+}
+
+.tileItem:hover .tileDel { opacity: 1; }
+.tileDel:hover { background: rgba(239,68,68,0.15); }
+
+.emptyTiles {
+  padding: 20px 12px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+/* ── Center Panel: Canvas ── */
+.canvasPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  padding: 0;
+}
+
+.tileHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+  flex-shrink: 0;
+}
+
+.tileNameInput {
+  flex: 1;
+  background: var(--bg-mid);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  outline: none;
+  max-width: 200px;
+}
+
+.tileNameInput:focus { border-color: var(--accent); }
+
+.blockTypeSelect {
+  background: var(--bg-mid);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  outline: none;
+  cursor: pointer;
+}
+
+.blockTypeSelect:focus { border-color: var(--accent); }
+
+.typeIndicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.canvasArea {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.canvasWrap {
+  width: 100%;
+  max-width: min(416px, calc(100vh - 220px));
+  aspect-ratio: 1;
+}
+
+.toolRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.toolBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  font-size: 1.1rem;
+  transition: all 0.12s;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  min-width: 48px;
+}
+
+.toolBtn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.toolBtn.active {
+  background: var(--bg-card);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.toolLabel {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.separator {
+  width: 1px;
+  height: 30px;
+  background: var(--border);
+  margin: 0 2px;
+}
+
+.actionBtn {
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--bg-mid);
+  color: var(--text-secondary);
+  transition: all 0.12s;
+}
+
+.actionBtn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ── Right Panel: Color Palette ── */
+.colorPanel {
+  width: 192px;
+  flex-shrink: 0;
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 12px;
+  gap: 14px;
+}
+
+.colorSectionTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.blockTypeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.blockTypeBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px;
+  border-radius: 9px;
+  border: 2px solid transparent;
+  transition: all 0.12s;
+  cursor: pointer;
+}
+
+.blockTypeBtn:hover { background: var(--bg-hover); }
+
+.blockTypeBtn.selected {
+  border-color: rgba(255,255,255,0.4);
+  background: var(--bg-card);
+}
+
+.blockTypeSwatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+}
+
+.blockTypeName {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.paletteGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.colorSwatch {
+  aspect-ratio: 1;
+  border-radius: 7px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.12s;
+}
+
+.colorSwatch:hover { transform: scale(1.1); }
+
+.colorSwatch.selected {
+  border-color: rgba(255,255,255,0.6);
+  transform: scale(1.05);
+}
+
+.currentColor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.currentSwatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+
+.colorPickerLabel {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.colorPickerInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.noTile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 24px;
+}
+
+.noTileIcon { font-size: 3rem; }
+.noTileText { font-size: 0.9rem; line-height: 1.5; }
+
+/* Tablet layout */
+@media (max-width: 768px) {
+  .tilePanel { width: 160px; }
+  .colorPanel { width: 150px; }
+}
+
+@media (max-width: 600px) {
+  .artboard { flex-direction: column; }
+  .tilePanel { width: 100%; height: 100px; border-right: none; border-bottom: 1px solid var(--border); }
+  .tileList { flex-direction: row; }
+  .colorPanel { width: 100%; height: 80px; border-left: none; border-top: 1px solid var(--border); }
+  .blockTypeGrid { grid-template-columns: repeat(8, 1fr); }
+}

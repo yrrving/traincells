@@ -1,0 +1,121 @@
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-darkest);
+  border-bottom: 1px solid var(--border);
+  padding: 0 8px;
+  height: 52px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  padding: 0 8px;
+  margin-right: 4px;
+}
+
+.logo span {
+  color: var(--accent);
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  background: var(--bg-mid);
+  color: var(--text-primary);
+}
+
+.tab.active {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.tab.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.tabIcon {
+  font-size: 1rem;
+}
+
+.tabLabel {
+  display: block;
+}
+
+@media (max-width: 700px) {
+  .tabLabel {
+    display: none;
+  }
+  .tab {
+    padding: 8px 10px;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.15s;
+  border: 1px solid var(--border);
+  background: var(--bg-mid);
+  color: var(--text-secondary);
+}
+
+.btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-bright);
+}
+
+.btnPrimary {
+  background: var(--accent);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btnPrimary:hover {
+  background: var(--accent-hover);
+}
+
+.btnPlay {
+  background: var(--success);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btnPlay:hover {
+  background: #16a34a;
+}
