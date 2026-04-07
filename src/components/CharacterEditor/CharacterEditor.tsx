@@ -58,6 +58,8 @@ export const CharacterEditor: React.FC = () => {
     addAnimationFrame,
     deleteAnimationFrame,
     duplicateAnimationFrame,
+    flipCharacterFrame,
+    copyFrameToAnimation,
     setAnimationFps,
     setSelectedColor,
     setDrawTool,
@@ -68,6 +70,7 @@ export const CharacterEditor: React.FC = () => {
   const [selectedFrame, setSelectedFrame] = useState(0);
   const [tool, setTool] = useState<DrawTool>('pen');
   const [color, setColor] = useState('#ffffff');
+  const [copyMenuFrame, setCopyMenuFrame] = useState<number | null>(null);
 
   const previewRef = useRef<HTMLCanvasElement>(null);
   const previewRafRef = useRef<number>(0);
@@ -202,6 +205,16 @@ export const CharacterEditor: React.FC = () => {
     setSelectedFrame(fi + 1);
   };
 
+  const handleFlip = () => {
+    pushUndo();
+    flipCharacterFrame(selectedAnim, selectedFrame);
+  };
+
+  const handleCopyTo = (toAnim: AnimationName) => {
+    copyFrameToAnimation(selectedAnim, selectedFrame, toAnim);
+    setCopyMenuFrame(null);
+  };
+
   return (
     <div className={styles.editorWrapper}>
       {/* ── Status banner ── */}
@@ -274,9 +287,13 @@ export const CharacterEditor: React.FC = () => {
               pixels={frame.pixels}
               index={fi}
               selected={fi === selectedFrame}
+              showCopyMenu={copyMenuFrame === fi}
+              currentAnim={selectedAnim}
               onSelect={() => setSelectedFrame(fi)}
               onDelete={() => handleDeleteFrame(fi)}
               onDuplicate={() => handleDuplicate(fi)}
+              onToggleCopyMenu={() => setCopyMenuFrame(copyMenuFrame === fi ? null : fi)}
+              onCopyTo={handleCopyTo}
               canDelete={frames.length > 1}
             />
           ))}
@@ -303,9 +320,14 @@ export const CharacterEditor: React.FC = () => {
             {ANIMS.find((a) => a.id === selectedAnim)?.icon}{' '}
             {ANIMS.find((a) => a.id === selectedAnim)?.label} — Ram {selectedFrame + 1}/{frames.length}
           </span>
-          <button className={styles.clearBtn} onClick={handleClearFrame}>
-            🗑 Rensa ram
-          </button>
+          <div className={styles.canvasHeaderActions}>
+            <button className={styles.actionBtn} onClick={handleFlip} title="Spegelvänd ramen horisontellt">
+              ↔ Spegla
+            </button>
+            <button className={styles.clearBtn} onClick={handleClearFrame}>
+              🗑 Rensa
+            </button>
+          </div>
         </div>
         <div className={styles.canvasWrap}>
           {currentFrame ? (
@@ -387,19 +409,19 @@ interface FrameThumbProps {
   index: number;
   selected: boolean;
   canDelete: boolean;
+  showCopyMenu: boolean;
+  currentAnim: AnimationName;
   onSelect: () => void;
   onDelete: () => void;
   onDuplicate: () => void;
+  onToggleCopyMenu: () => void;
+  onCopyTo: (anim: AnimationName) => void;
 }
 
 const FrameThumb: React.FC<FrameThumbProps> = ({
-  pixels,
-  index,
-  selected,
-  canDelete,
-  onSelect,
-  onDelete,
-  onDuplicate,
+  pixels, index, selected, canDelete,
+  showCopyMenu, currentAnim,
+  onSelect, onDelete, onDuplicate, onToggleCopyMenu, onCopyTo,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -408,6 +430,8 @@ const FrameThumb: React.FC<FrameThumbProps> = ({
     if (!canvas) return;
     renderFrameToCanvas(canvas, pixels, THUMB_SIZE);
   }, [pixels]);
+
+  const otherAnims = ANIMS.filter((a) => a.id !== currentAnim);
 
   return (
     <div className={[styles.frameThumb, selected ? styles.frameThumbSelected : ''].join(' ')}>
@@ -420,21 +444,22 @@ const FrameThumb: React.FC<FrameThumbProps> = ({
         title={`Ram ${index + 1}`}
       />
       <div className={styles.thumbActions}>
-        <button
-          className={styles.thumbBtn}
-          onClick={onDuplicate}
-          title="Duplicera"
-        >
-          ⧉
-        </button>
+        <button className={styles.thumbBtn} onClick={onDuplicate} title="Duplicera inom denna animation">⧉</button>
+        <div className={styles.copyMenuWrap}>
+          <button className={styles.thumbBtn} onClick={onToggleCopyMenu} title="Kopiera ram till annan animation">⇒</button>
+          {showCopyMenu && (
+            <div className={styles.copyMenu}>
+              <span className={styles.copyMenuLabel}>Kopiera till:</span>
+              {otherAnims.map((a) => (
+                <button key={a.id} className={styles.copyMenuItem} onClick={() => onCopyTo(a.id)}>
+                  {a.icon} {a.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         {canDelete && (
-          <button
-            className={styles.thumbBtn}
-            onClick={onDelete}
-            title="Ta bort"
-          >
-            ✕
-          </button>
+          <button className={styles.thumbBtn} onClick={onDelete} title="Ta bort">✕</button>
         )}
       </div>
     </div>

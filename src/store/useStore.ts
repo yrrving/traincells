@@ -177,6 +177,8 @@ interface Store {
   addAnimationFrame: (animName: AnimationName) => void;
   deleteAnimationFrame: (animName: AnimationName, frameIndex: number) => void;
   duplicateAnimationFrame: (animName: AnimationName, frameIndex: number) => void;
+  flipCharacterFrame: (animName: AnimationName, frameIndex: number) => void;
+  copyFrameToAnimation: (fromAnim: AnimationName, frameIndex: number, toAnim: AnimationName) => void;
   setAnimationFps: (animName: AnimationName, fps: number) => void;
 
   // UI
@@ -573,6 +575,38 @@ export const useStore = create<Store>((set, get) => ({
     const copy = { ...orig, id: uuid(), pixels: [...orig.pixels] };
     const frames = [...anim.frames.slice(0, frameIndex + 1), copy, ...anim.frames.slice(frameIndex + 1)];
     const ch = { ...project.playerCharacter, animations: { ...project.playerCharacter.animations, [animName]: { ...anim, frames } } };
+    set({ project: { ...project, playerCharacter: ch } });
+  },
+
+  flipCharacterFrame: (animName, frameIndex) => {
+    const { project } = get();
+    if (!project?.playerCharacter) return;
+    const anim = project.playerCharacter.animations[animName];
+    const frame = anim.frames[frameIndex];
+    if (!frame) return;
+    const flipped = [...frame.pixels];
+    for (let row = 0; row < ART_SIZE; row++) {
+      for (let col = 0; col < Math.floor(ART_SIZE / 2); col++) {
+        const a = row * ART_SIZE + col;
+        const b = row * ART_SIZE + (ART_SIZE - 1 - col);
+        [flipped[a], flipped[b]] = [flipped[b], flipped[a]];
+      }
+    }
+    const frames = anim.frames.map((f, i) => i === frameIndex ? { ...f, pixels: flipped } : f);
+    const ch = { ...project.playerCharacter, animations: { ...project.playerCharacter.animations, [animName]: { ...anim, frames } } };
+    set({ project: { ...project, playerCharacter: ch } });
+  },
+
+  copyFrameToAnimation: (fromAnim, frameIndex, toAnim) => {
+    const { project } = get();
+    if (!project?.playerCharacter) return;
+    const srcFrame = project.playerCharacter.animations[fromAnim]?.frames[frameIndex];
+    if (!srcFrame) return;
+    const destAnim = project.playerCharacter.animations[toAnim];
+    if (destAnim.frames.length >= 8) return;
+    const newFrame = { id: uuid(), pixels: [...srcFrame.pixels] };
+    const frames = [...destAnim.frames, newFrame];
+    const ch = { ...project.playerCharacter, animations: { ...project.playerCharacter.animations, [toAnim]: { ...destAnim, frames } } };
     set({ project: { ...project, playerCharacter: ch } });
   },
 
