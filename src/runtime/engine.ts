@@ -151,7 +151,6 @@ function resolveSolids(
 // ── Initialization ────────────────────────────────────────────────────────────
 export function initGameState(project: Project): GameState {
   const startRoomId = project.worldMap.startRoomId;
-  const room = startRoomId ? project.worldMap.rooms[startRoomId] : null;
 
   // Find room position in grid
   let roomRow = 0;
@@ -166,17 +165,12 @@ export function initGameState(project: Project): GameState {
     }
   }
 
-  // Find spawn position (first "story" tile or fallback to bottom-left)
-  let spawnX = TILE_SIZE;
-  let spawnY = (ROOM_SIZE - 2) * TILE_SIZE;
-
-  if (room) {
-    const storyTiles = getCellsWithBehavior(project, startRoomId!, 'story');
-    if (storyTiles.length > 0) {
-      spawnX = storyTiles[0].x + TILE_SIZE / 2 - PLAYER_W / 2;
-      spawnY = storyTiles[0].y - PLAYER_H;
-    }
-  }
+  // Find spawn position from spawnCellIndex
+  const spawnIdx = project.worldMap.spawnCellIndex;
+  const spawnRow = Math.floor(spawnIdx / ROOM_SIZE);
+  const spawnCol = spawnIdx % ROOM_SIZE;
+  let spawnX = spawnCol * TILE_SIZE + TILE_SIZE / 2 - PLAYER_W / 2;
+  let spawnY = spawnRow * TILE_SIZE - PLAYER_H;
 
   // Build coins list from all rooms
   const coins: Coin[] = [];
@@ -372,14 +366,11 @@ export function updateGame(
       if (p.health <= 0) {
         return { ...state, player: { ...p, dead: true }, status: 'dead', statusTimer: 0, flashAlpha: 1, flashColor: '#000' };
       }
-      const storyTiles = getCellsWithBehavior(project, roomId, 'story');
-      if (storyTiles.length > 0) {
-        p.x = storyTiles[0].x + TILE_SIZE / 2 - PLAYER_W / 2;
-        p.y = storyTiles[0].y - PLAYER_H;
-      } else {
-        p.x = TILE_SIZE;
-        p.y = TILE_SIZE;
-      }
+      const rIdx = project.worldMap.spawnCellIndex;
+      const rRow = Math.floor(rIdx / ROOM_SIZE);
+      const rCol = rIdx % ROOM_SIZE;
+      p.x = rCol * TILE_SIZE + TILE_SIZE / 2 - PLAYER_W / 2;
+      p.y = rRow * TILE_SIZE - PLAYER_H;
       p.vy = 0;
       p.vx = 0;
       p.invTimer = INV_FRAMES;

@@ -41,13 +41,17 @@ function prerenderTile(tile: TileArt, size: number): HTMLCanvasElement {
 interface RoomCanvasProps {
   roomId: string;
   selectedTileId: string | null; // null = erase
-  tool: 'paint' | 'erase' | 'fill';
+  tool: 'paint' | 'erase' | 'fill' | 'spawn';
+  spawnCellIndex?: number | null;
+  onSpawn?: (cellIndex: number) => void;
 }
 
 const RoomCanvas: React.FC<RoomCanvasProps> = ({
   roomId,
   selectedTileId,
   tool,
+  spawnCellIndex,
+  onSpawn,
 }) => {
   const { project, placeCell, fillCells } = useStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -99,7 +103,28 @@ const RoomCanvas: React.FC<RoomCanvasProps> = ({
       ctx.lineTo(ROOM_CANVAS_PX, i * ROOM_CELL_PX);
       ctx.stroke();
     }
-  }, [room, tileCache, project?.backgroundColor]);
+
+    // Spawn marker
+    if (spawnCellIndex != null) {
+      const spawnRow = Math.floor(spawnCellIndex / ROOM_SIZE);
+      const spawnCol = spawnCellIndex % ROOM_SIZE;
+      const sx = spawnCol * ROOM_CELL_PX;
+      const sy = spawnRow * ROOM_CELL_PX;
+      // Highlight cell
+      ctx.fillStyle = 'rgba(34, 197, 94, 0.25)';
+      ctx.fillRect(sx, sy, ROOM_CELL_PX, ROOM_CELL_PX);
+      ctx.strokeStyle = '#22c55e';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(sx + 1, sy + 1, ROOM_CELL_PX - 2, ROOM_CELL_PX - 2);
+      // Flag icon
+      ctx.font = `${ROOM_CELL_PX * 0.6}px system-ui`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🚩', sx + ROOM_CELL_PX / 2, sy + ROOM_CELL_PX / 2);
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+    }
+  }, [room, tileCache, project?.backgroundColor, spawnCellIndex]);
 
   const getCellIndex = useCallback(
     (clientX: number, clientY: number): number | null => {
@@ -130,9 +155,12 @@ const RoomCanvas: React.FC<RoomCanvasProps> = ({
     e.preventDefault();
     const idx = getCellIndex(e.clientX, e.clientY);
     if (idx === null) return;
+    if (tool === 'spawn') {
+      onSpawn?.(idx);
+      return;
+    }
     if (tool === 'fill') {
-      const tileId = tool === 'fill' ? selectedTileId : null;
-      fillCells(roomId, idx, tileId);
+      fillCells(roomId, idx, selectedTileId);
       return;
     }
     isDrawing.current = true;
@@ -156,6 +184,10 @@ const RoomCanvas: React.FC<RoomCanvasProps> = ({
     const t = e.touches[0];
     const idx = getCellIndex(t.clientX, t.clientY);
     if (idx === null) return;
+    if (tool === 'spawn') {
+      onSpawn?.(idx);
+      return;
+    }
     if (tool === 'fill') {
       fillCells(roomId, idx, selectedTileId);
       return;
@@ -312,10 +344,10 @@ function findRoomPos(
 
 // ── WorldMap (main) ───────────────────────────────────────────────────────────
 type ViewMode = 'map' | 'room';
-type RoomTool = 'paint' | 'erase' | 'fill';
+type RoomTool = 'paint' | 'erase' | 'fill' | 'spawn';
 
 export const WorldMap: React.FC = () => {
-  const { project, ui, setActiveRoom, setSelectedTileArt, setStartRoom } = useStore();
+  const { project, ui, setActiveRoom, setSelectedTileArt, setStartRoom, setSpawnCell } = useStore();
   const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [roomTool, setRoomTool] = useState<RoomTool>('paint');
   const [isEraseMode, setIsEraseMode] = useState(false);
@@ -344,6 +376,13 @@ export const WorldMap: React.FC = () => {
 
   const effectiveTool: RoomTool = isEraseMode ? 'erase' : roomTool;
   const effectiveTileId = isEraseMode ? null : ui.selectedTileArtId;
+  const spawnCellIndex = isStartRoom ? (project?.worldMap.spawnCellIndex ?? null) : null;
+
+  const handleSpawnCell = (cellIndex: number) => {
+    setSpawnCell(cellIndex);
+    setRoomTool('paint');
+    setIsEraseMode(false);
+  };
 
   return (
     <div className={styles.worldmap}>
@@ -511,6 +550,15 @@ export const WorldMap: React.FC = () => {
               >
                 ⬜ Radera
               </button>
+              {isStartRoom && (
+                <button
+                  className={`${styles.toolBtn} ${styles.spawnToolBtn} ${roomTool === 'spawn' && !isEraseMode ? styles.active : ''}`}
+                  onClick={() => { setRoomTool('spawn'); setIsEraseMode(false); }}
+                  title="Klicka en cell för att sätta startposition"
+                >
+                  🚩 Startpos
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -529,7 +577,13 @@ export const WorldMap: React.FC = () => {
                   <NavArrowBtn dir="left" roomId={adjacentRooms.left} roomName={adjacentRooms.left ? rooms[adjacentRooms.left]?.name : undefined} onNavigate={handleOpenRoom} />
                 </div>
                 <div className={styles.navCanvas}>
-                  <RoomCanvas roomId={ui.activeRoomId} selectedTileId={effectiveTileId} tool={effectiveTool} />
+                  <RoomCanvas
+                    roomId={ui.activeRoomId}
+                    selectedTileId={effectiveTileId}
+                    tool={effectiveTool}
+                    spawnCellIndex={spawnCellIndex}
+                    onSpawn={handleSpawnCell}
+                  />
                 </div>
                 <div className={styles.navRight}>
                   <NavArrowBtn dir="right" roomId={adjacentRooms.right} roomName={adjacentRooms.right ? rooms[adjacentRooms.right]?.name : undefined} onNavigate={handleOpenRoom} />

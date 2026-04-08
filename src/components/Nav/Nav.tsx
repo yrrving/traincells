@@ -41,7 +41,7 @@ export const Nav: React.FC = () => {
   return (
     <nav className={styles.nav}>
       <div className={styles.logo}>
-        Claude<span>Bloxels</span>
+        Train<span>Cells</span>
       </div>
 
       {/* Hem — standalone */}

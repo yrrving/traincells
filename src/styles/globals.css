@@ -5,23 +5,42 @@
 }
 
 :root {
-  --bg-darkest: #0f0e17;
-  --bg-dark: #1a1830;
-  --bg-mid: #252340;
-  --bg-panel: #1e1c38;
-  --bg-card: #2a2848;
-  --bg-hover: #332f5a;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-bright: rgba(255, 255, 255, 0.18);
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-dim: #64748b;
-  --accent: #6366f1;
-  --accent-hover: #4f46e5;
-  --accent-glow: rgba(99, 102, 241, 0.3);
-  --success: #22c55e;
-  --danger: #ef4444;
-  --warning: #eab308;
+  /* ── Backgrounds (neutral dark — brand colors pop against these) ── */
+  --bg-darkest: #131517;
+  --bg-dark: #1a1d20;
+  --bg-mid: #22262a;
+  --bg-panel: #1e2124;
+  --bg-card: #282d32;
+  --bg-hover: #333a40;
+  --bg-active: #3d454e;
+  --border: rgba(255, 255, 255, 0.10);
+  --border-bright: rgba(255, 255, 255, 0.20);
+
+  /* ── Text ── */
+  --text-primary: #eef0f4;
+  --text-secondary: #9ca8b4;
+  --text-dim: #6b7888;
+
+  /* ── Brand accent (green as primary action color) ── */
+  --accent: #4CA37A;
+  --accent-hover: #016F3A;
+  --accent-glow: rgba(76, 163, 122, 0.20);
+
+  /* ── Status colors → all brand ── */
+  --success: #4CA37A;
+  --danger: #EF525C;
+  --warning: #F0AD30;
+
+  /* ── Full brand palette (available globally) ── */
+  --brand-red:          #EF525C;
+  --brand-red-dark:     #C4262D;
+  --brand-green:        #4CA37A;
+  --brand-green-dark:   #016F3A;
+  --brand-blue:         #51A5D4;
+  --brand-blue-dark:    #288CBF;
+  --brand-orange:       #F0AD30;
+  --brand-orange-dark:  #E88721;
+
   font-size: 16px;
 }
 

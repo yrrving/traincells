@@ -168,6 +168,7 @@ interface Store {
   placeCell: (roomId: string, cellIndex: number, tileArtId: string | null) => void;
   fillCells: (roomId: string, startIndex: number, fillTileArtId: string | null) => void;
   setStartRoom: (roomId: string, spawnCellIndex: number) => void;
+  setSpawnCell: (cellIndex: number) => void;
 
   // Character
   initPlayerCharacter: () => void;
@@ -491,6 +492,17 @@ export const useStore = create<Store>((set, get) => ({
       project: {
         ...project,
         worldMap: { ...project.worldMap, startRoomId: roomId, spawnCellIndex },
+      },
+    });
+  },
+
+  setSpawnCell: (cellIndex) => {
+    const { project } = get();
+    if (!project) return;
+    set({
+      project: {
+        ...project,
+        worldMap: { ...project.worldMap, spawnCellIndex: cellIndex },
       },
     });
   },
