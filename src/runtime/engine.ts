@@ -597,7 +597,12 @@ function getCharFrame(
   else if (Math.abs(player.vx) > 0.3) animName = 'walk';
   else animName = 'idle';
 
-  const anim = character.animations[animName];
+  let anim = character.animations[animName];
+  // Fallback to idle if selected animation has no frames
+  if (!anim || anim.frames.length === 0) {
+    animName = 'idle';
+    anim = character.animations['idle'];
+  }
   if (!anim || anim.frames.length === 0) return null;
   const frameIndex = Math.floor(time / Math.max(1, Math.round(60 / anim.fps))) % anim.frames.length;
   return charCache[`${animName}_${frameIndex}`] ?? null;
