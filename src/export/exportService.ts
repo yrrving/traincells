@@ -8,7 +8,7 @@ export function exportGameAsHTML(project: Project): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${project.name.replace(/[^\wåäöÅÄÖ\s\-]/g, '').trim() || 'spel'}.html`;
+  a.download = `${project.name.replace(/[^\wåäöÅÄÖ\s-]/g, '').trim() || 'spel'}.html`;
   a.click();
   URL.revokeObjectURL(url);
 }

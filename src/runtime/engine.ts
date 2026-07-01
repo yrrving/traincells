@@ -169,8 +169,8 @@ export function initGameState(project: Project): GameState {
   const spawnIdx = project.worldMap.spawnCellIndex;
   const spawnRow = Math.floor(spawnIdx / ROOM_SIZE);
   const spawnCol = spawnIdx % ROOM_SIZE;
-  let spawnX = spawnCol * TILE_SIZE + TILE_SIZE / 2 - PLAYER_W / 2;
-  let spawnY = spawnRow * TILE_SIZE - PLAYER_H;
+  const spawnX = spawnCol * TILE_SIZE + TILE_SIZE / 2 - PLAYER_W / 2;
+  const spawnY = spawnRow * TILE_SIZE - PLAYER_H;
 
   // Build coins list from all rooms
   const coins: Coin[] = [];

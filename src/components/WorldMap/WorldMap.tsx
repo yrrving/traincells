@@ -61,14 +61,15 @@ const RoomCanvas: React.FC<RoomCanvasProps> = ({
   const room = project?.worldMap.rooms[roomId];
 
   // Pre-render all tile arts
+  const tileArts = project?.tileArts;
   const tileCache = useMemo(() => {
     const cache: Record<string, HTMLCanvasElement> = {};
-    if (!project) return cache;
-    for (const tile of project.tileArts) {
+    if (!tileArts) return cache;
+    for (const tile of tileArts) {
       cache[tile.id] = prerenderTile(tile, ROOM_CELL_PX);
     }
     return cache;
-  }, [project?.tileArts]);
+  }, [tileArts]);
 
   // Draw room
   useEffect(() => {

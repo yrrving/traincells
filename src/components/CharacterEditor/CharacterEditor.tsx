@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useStore } from '../../store/useStore';
 import { ART_EXTRA_COLORS } from '../../data/blockTypes';
 import { ART_SIZE } from '../../models/types';
@@ -67,7 +67,7 @@ export const CharacterEditor: React.FC = () => {
   } = useStore();
 
   const [selectedAnim, setSelectedAnim] = useState<AnimationName>('idle');
-  const [selectedFrame, setSelectedFrame] = useState(0);
+  const [selectedFrameRaw, setSelectedFrame] = useState(0);
   const [tool, setTool] = useState<DrawTool>('pen');
   const [color, setColor] = useState('#ffffff');
   const [copyMenuFrame, setCopyMenuFrame] = useState<number | null>(null);
@@ -78,14 +78,11 @@ export const CharacterEditor: React.FC = () => {
 
   const character = project?.playerCharacter ?? null;
   const anim = character?.animations[selectedAnim];
-  const frames = anim?.frames ?? [];
+  const frames = useMemo(() => anim?.frames ?? [], [anim]);
   const fps = anim?.fps ?? 6;
+  // Clamp during render so frame deletions/anim switches never leave a stale index
+  const selectedFrame = Math.min(selectedFrameRaw, Math.max(0, frames.length - 1));
   const currentFrame = frames[selectedFrame] ?? frames[0];
-
-  // Clamp selected frame when switching anims or deleting frames
-  useEffect(() => {
-    setSelectedFrame((f) => Math.min(f, Math.max(0, frames.length - 1)));
-  }, [selectedAnim, frames.length]);
 
   // ── Animation preview loop ──────────────────────────────────────────────────
   useEffect(() => {

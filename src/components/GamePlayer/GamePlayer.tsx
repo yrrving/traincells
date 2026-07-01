@@ -41,7 +41,7 @@ export const GamePlayer: React.FC = () => {
   }, [project]);
 
   // ── Game loop ─────────────────────────────────────────────────────────────
-  const loop = useCallback(() => {
+  const loop = useCallback(function frame() {
     if (!project || !gameStateRef.current) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -69,7 +69,7 @@ export const GamePlayer: React.FC = () => {
       setGameStatus(gameStateRef.current.status);
     }
 
-    rafRef.current = requestAnimationFrame(loop);
+    rafRef.current = requestAnimationFrame(frame);
   }, [project, gameStatus]);
 
   // ── Start / stop ──────────────────────────────────────────────────────────
@@ -85,10 +85,7 @@ export const GamePlayer: React.FC = () => {
     // Init game
     gameStateRef.current = initGameState(project);
     setGameStatus('playing');
-
-    rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [project]); // Re-init when project changes
+  }, [project]); // Re-init when project changes; the loop effect below starts rendering
 
   // Restart loop after project rerender (keeps loop alive if already running)
   useEffect(() => {
