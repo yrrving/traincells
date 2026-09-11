@@ -47,6 +47,7 @@ interface Coin {
   id: string;
   roomId: string;
   cellIdx: number;
+  tileId: string; // which tile art this coin was placed with — draw the besökare's own art, not a generic shape
   x: number;
   y: number;
   collected: boolean;
@@ -56,6 +57,7 @@ interface Coin {
 interface Enemy extends Entity {
   id: string;
   roomId: string;
+  tileId: string; // which tile art this enemy was placed with — draw the besökare's own art, not a generic shape
   health: number;
   invTimer: number;
   dir: 1 | -1;
@@ -99,7 +101,7 @@ function getCellsWithBehavior(
   project: Project,
   roomId: string,
   behavior: BlockTypeBehavior
-): Array<{ idx: number; row: number; col: number; x: number; y: number }> {
+): Array<{ idx: number; row: number; col: number; x: number; y: number; tileId: string }> {
   const room = project.worldMap.rooms[roomId];
   if (!room) return [];
   const result = [];
@@ -110,7 +112,7 @@ function getCellsWithBehavior(
     if (!tile || tile.blockTypeId !== behavior) continue;
     const row = Math.floor(i / ROOM_SIZE);
     const col = i % ROOM_SIZE;
-    result.push({ idx: i, row, col, x: col * TILE_SIZE, y: row * TILE_SIZE });
+    result.push({ idx: i, row, col, x: col * TILE_SIZE, y: row * TILE_SIZE, tileId });
   }
   return result;
 }
@@ -195,6 +197,7 @@ export function initGameState(project: Project): GameState {
         id: `coin_${roomId}_${c.idx}`,
         roomId,
         cellIdx: c.idx,
+        tileId: c.tileId,
         x: c.x + TILE_SIZE / 2 - 10,
         y: c.y + TILE_SIZE / 2 - 10,
         collected: false,
@@ -211,6 +214,7 @@ export function initGameState(project: Project): GameState {
       enemies.push({
         id: `enemy_${roomId}_${c.idx}`,
         roomId,
+        tileId: c.tileId,
         x: c.x + TILE_SIZE / 2 - ENEMY_W / 2,
         y: c.y + TILE_SIZE / 2 - ENEMY_H / 2,
         w: ENEMY_W,
@@ -554,13 +558,12 @@ export function buildTileCache(
     c.height = size;
     const ctx = c.getContext('2d')!;
     const px = size / ART_SIZE;
-    // Checkerboard
-    for (let y = 0; y < ART_SIZE; y++) {
-      for (let x = 0; x < ART_SIZE; x++) {
-        ctx.fillStyle = (x + y) % 2 === 0 ? '#2a2848' : '#1e1c38';
-        ctx.fillRect(x * px, y * px, px, px);
-      }
-    }
+    // No background — transparent, so unpainted pixels (e.g. a round coin
+    // drawn on an otherwise empty tile) stay transparent in-game instead of
+    // showing up as a solid box. The checkerboard some editor screens draw
+    // is a preview-only aid for THEM, not part of the tile's real content —
+    // baking it in here made every tile look like a filled square at
+    // runtime regardless of what was actually drawn.
     for (let i = 0; i < tile.pixels.length; i++) {
       const col = tile.pixels[i];
       if (!col) continue;
@@ -650,10 +653,20 @@ export function renderGame(
   ctx.translate(offsetX, offsetY);
   ctx.scale(scale, scale);
 
+  // 'enemy' and 'collectible' tiles are spawn markers, not scenery — they're
+  // represented by a live Coin/Enemy entity (below), so skip them here.
+  // Drawing them as permanent background too was the source of two bugs:
+  // a leftover copy of the besökare's art staying behind while the real
+  // (differently-drawn) enemy walked off, and a collected coin's art never
+  // disappearing since only the entity, not the static tile, was removed.
+  const dynamicTileIds = new Set(
+    project.tileArts.filter((t) => t.blockTypeId === 'enemy' || t.blockTypeId === 'collectible').map((t) => t.id)
+  );
+
   // Draw tiles
   for (let i = 0; i < room.cells.length; i++) {
     const tileId = room.cells[i];
-    if (!tileId) continue;
+    if (!tileId || dynamicTileIds.has(tileId)) continue;
     const col = i % ROOM_SIZE;
     const row = Math.floor(i / ROOM_SIZE);
     const cached = tileCache[tileId];
@@ -670,30 +683,52 @@ export function renderGame(
     }
   }
 
-  // Draw coins (not yet collected in current room)
-  ctx.save();
+  // Draw coins (not yet collected in current room) — the besökare's own
+  // tile art, full tile size, gently bobbing. Falls back to a generic gold
+  // coin only if the art is somehow missing (e.g. the tile was deleted).
   for (const coin of coins) {
     if (coin.collected || coin.roomId !== currentRoomId) continue;
     const bobY = Math.sin(coin.bobTime) * 4;
-    ctx.fillStyle = '#fbbf24';
-    ctx.shadowColor = '#fbbf24';
-    ctx.shadowBlur = 8;
-    ctx.beginPath();
-    ctx.arc(coin.x + 10, coin.y + 10 + bobY, 9, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#fde047';
-    ctx.beginPath();
-    ctx.arc(coin.x + 7, coin.y + 7 + bobY, 3.5, 0, Math.PI * 2);
-    ctx.fill();
+    const cached = tileCache[coin.tileId];
+    const col = coin.cellIdx % ROOM_SIZE;
+    const row = Math.floor(coin.cellIdx / ROOM_SIZE);
+    if (cached) {
+      ctx.drawImage(cached, col * TILE_SIZE, row * TILE_SIZE + bobY, TILE_SIZE, TILE_SIZE);
+    } else {
+      ctx.save();
+      ctx.fillStyle = '#fbbf24';
+      ctx.shadowColor = '#fbbf24';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(coin.x + 10, coin.y + 10 + bobY, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fde047';
+      ctx.beginPath();
+      ctx.arc(coin.x + 7, coin.y + 7 + bobY, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
   }
-  ctx.shadowBlur = 0;
-  ctx.restore();
 
-  // Draw enemies
+  // Draw enemies — the besökare's own tile art, flipped to face the
+  // direction they're patrolling. Falls back to a generic purple blob only
+  // if the art is somehow missing.
   for (const enemy of enemies) {
     if (enemy.roomId !== currentRoomId) continue;
     const flash = enemy.invTimer > 0 && Math.floor(enemy.invTimer / 4) % 2 === 0;
-    if (!flash) {
+    if (flash) continue;
+    const cached = tileCache[enemy.tileId];
+    if (cached) {
+      ctx.save();
+      if (enemy.dir === -1) {
+        ctx.translate(enemy.x + enemy.w, enemy.y);
+        ctx.scale(-1, 1);
+        ctx.drawImage(cached, 0, 0, enemy.w, enemy.h);
+      } else {
+        ctx.drawImage(cached, enemy.x, enemy.y, enemy.w, enemy.h);
+      }
+      ctx.restore();
+    } else {
       ctx.fillStyle = '#c084fc';
       ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
       // Eyes
