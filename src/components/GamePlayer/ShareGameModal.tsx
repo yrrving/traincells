@@ -61,7 +61,7 @@ export const ShareGameModal: React.FC<ShareGameModalProps> = ({ project, onClose
             </button>
           </div>
           <p className={styles.optionHint}>
-            Projektfilen (.bloxels.json) går att öppna igen här i TrainCells för att fortsätta
+            Projektfilen (.traincells.json) går att öppna igen här i TrainCells för att fortsätta
             redigera — den spelbara filen (.html) funkar direkt i valfri webbläsare.
           </p>
         </div>

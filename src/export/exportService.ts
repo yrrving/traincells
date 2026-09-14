@@ -11,7 +11,7 @@ export function exportProjectJSON(project: Project): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${project.name.replace(/\s+/g, '-')}.bloxels.json`;
+  a.download = `${project.name.replace(/\s+/g, '-')}.traincells.json`;
   a.click();
   URL.revokeObjectURL(url);
 }

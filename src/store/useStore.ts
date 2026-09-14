@@ -209,12 +209,28 @@ interface Store {
   redo: () => void;
 }
 
-const STORAGE_KEY = 'claudebloxels_projects';
-const CURRENT_KEY = 'claudebloxels_current';
+const STORAGE_KEY = 'traincells_projects';
+const CURRENT_KEY = 'traincells_current';
+// Pre-rename key names (2026-09-14) — the app used to be called
+// "ClaudeBloxels" and its localStorage keys said so, which is exactly the
+// kind of leftover branding leak that shouldn't be visible anywhere in the
+// product. Migrated below so besökare with existing saved games don't lose
+// their "Sparade spel" list the first time they open the renamed version.
+const LEGACY_STORAGE_KEY = 'claudebloxels_projects';
 
 function loadSavedList(): { id: string; name: string; updatedAt: number }[] {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const current = localStorage.getItem(STORAGE_KEY);
+    if (current) return JSON.parse(current);
+    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (legacy) {
+      // One-time migration: copy forward under the new key, then drop the
+      // old one so it doesn't linger indefinitely.
+      localStorage.setItem(STORAGE_KEY, legacy);
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
+      return JSON.parse(legacy);
+    }
+    return [];
   } catch {
     return [];
   }
@@ -363,7 +379,7 @@ export const useStore = create<Store>((set, get) => ({
   },
 
   // Not saved yet (see createProject) — the besökare explicitly opening a
-  // .bloxels.json file is the one exception that still saves immediately,
+  // .traincells.json file is the one exception that still saves immediately,
   // since importing IS the deliberate "this is mine, keep it" action; the
   // starter-game import used by Handlett läge passes skipSave so trying the
   // demo doesn't itself clutter "Sparade spel".
