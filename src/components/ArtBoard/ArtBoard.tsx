@@ -47,6 +47,13 @@ export const ArtBoard: React.FC = () => {
   const superTargetType: BlockTypeBehavior | null =
     superStep === 'floor-draw' ? 'terrain' : superStep === 'draw' ? ui.superFlow!.drawing : null;
   const superHasTargetTile = superTargetType ? tileArts.some((t) => t.blockTypeId === superTargetType) : false;
+  // Nirre's feedback (2026-09): the pointer arrow alone wasn't unambiguous
+  // enough about what's safe to ignore — grey out the panel that isn't part
+  // of the current sub-step alongside it. Before a tile exists there's
+  // nothing to do with colors yet; once one does, the tile library is a
+  // distraction (switching tiles / making more) from actually drawing.
+  const superCreatePhase = !!superTargetType && !superHasTargetTile;
+  const superDrawPhase = !!superTargetType && superHasTargetTile;
   const superLabel =
     superStep === 'floor-draw' ? 'golvet'
     : ui.superFlow?.drawing === 'collectible' ? 'ditt mynt'
@@ -214,16 +221,22 @@ export const ArtBoard: React.FC = () => {
 
     <div className={styles.artboard}>
       {/* ── Left: Tile Library ── */}
-      <div className={styles.tilePanel}>
+      <div className={`${styles.tilePanel} ${superDrawPhase ? styles.superDim : ''}`}>
         {superTargetType && !superHasTargetTile && (
-          <div className={styles.pointerArrow}>
-            <span className={styles.pointerArrowIcon}>⬇️</span>
-            <span>Klicka här!</span>
+          <div className={styles.pointerArrowAnchorBelowRight}>
+            <div className={`${styles.pointerArrow} ${styles.pointerArrowCompact} ${styles.pointerArrowBounceUp}`}>
+              <span className={`${styles.pointerArrowIcon} ${styles.pointerArrowIconCompact}`}>⬆️</span>
+              <span>Klicka på +</span>
+            </div>
           </div>
         )}
         <div className={styles.panelHeader}>
           <span className={styles.panelTitle}>Brickor</span>
-          <button className={styles.addBtn} onClick={handleNewTile} title="Ny bricka">
+          <button
+            className={`${styles.addBtn} ${superCreatePhase ? styles.addBtnHighlight : ''}`}
+            onClick={handleNewTile}
+            title="Ny bricka"
+          >
             +
           </button>
         </div>
@@ -288,7 +301,7 @@ export const ArtBoard: React.FC = () => {
       </div>
 
       {/* ── Center: Canvas ── */}
-      <div className={styles.canvasPanel}>
+      <div className={`${styles.canvasPanel} ${superCreatePhase ? styles.superDim : ''}`}>
         {!editingTile ? (
           <div className={styles.noTile}>
             <div className={styles.noTileIcon}>🎨</div>
@@ -347,9 +360,11 @@ export const ArtBoard: React.FC = () => {
             <div className={styles.canvasArea}>
               <div className={styles.canvasStack}>
                 {ui.onboardingHint === 'paint-tile-now' && (
-                  <div className={styles.pointerArrow}>
-                    <span className={styles.pointerArrowIcon}>⬇️</span>
-                    <span>Rita här!</span>
+                  <div className={styles.pointerArrowAnchorTop}>
+                    <div className={styles.pointerArrow}>
+                      <span className={styles.pointerArrowIcon}>⬇️</span>
+                      <span>Rita här!</span>
+                    </div>
                   </div>
                 )}
                 <div className={`${styles.canvasWrap} ${ui.onboardingHint === 'paint-tile-now' ? styles.canvasWrapHighlight : ''}`}>
@@ -388,7 +403,7 @@ export const ArtBoard: React.FC = () => {
       </div>
 
       {/* ── Right: Color Palette ── */}
-      <div className={styles.colorPanel}>
+      <div className={`${styles.colorPanel} ${superCreatePhase ? styles.superDim : ''}`}>
         {/* Current color */}
         <div>
           <div className={styles.colorSectionTitle}>Vald färg</div>
@@ -429,12 +444,14 @@ export const ArtBoard: React.FC = () => {
         </div>
 
         {/* Extra art colors */}
-        <div>
+        <div className={styles.pointerAnchorWrap}>
           <div className={styles.colorSectionTitle}>Färger</div>
           {ui.onboardingHint === 'change-tile' && (
-            <div className={styles.pointerArrow}>
-              <span className={styles.pointerArrowIcon}>⬇️</span>
-              <span>Välj färg här!</span>
+            <div className={styles.pointerArrowAnchorTop}>
+              <div className={`${styles.pointerArrow} ${styles.pointerArrowCompact}`}>
+                <span className={`${styles.pointerArrowIcon} ${styles.pointerArrowIconCompact}`}>⬇️</span>
+                <span>Välj färg här!</span>
+              </div>
             </div>
           )}
           <div className={`${styles.paletteGrid} ${ui.onboardingHint === 'change-tile' ? styles.paletteGridHighlight : ''}`}>

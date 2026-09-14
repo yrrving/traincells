@@ -523,7 +523,10 @@ export const WorldMap: React.FC = () => {
 
     <div className={styles.worldmap}>
       {/* ── Left: Tile Palette ── */}
-      <div className={styles.palettePanel}>
+      {/* Super handlett läge pre-selects the right tile before landing here
+          (see ArtBoard's superContinue / WorldMap's superChoose) — greyed
+          out so switching tiles mid-step doesn't read as an option. */}
+      <div className={`${styles.palettePanel} ${superInRoomStep ? styles.superDim : ''}`}>
         <div className={styles.panelHeader}>
           <span className={styles.panelTitle}>Brickor</span>
         </div>
@@ -593,7 +596,7 @@ export const WorldMap: React.FC = () => {
       <div className={styles.mainArea}>
         {/* Toolbar */}
         <div className={styles.toolbar}>
-          <div className={styles.viewBtns}>
+          <div className={`${styles.viewBtns} ${superInRoomStep ? styles.superDim : ''}`}>
             <button
               className={`${styles.viewBtn} ${effectiveViewMode === 'map' ? styles.active : ''}`}
               onClick={() => setViewMode('map')}
@@ -616,7 +619,7 @@ export const WorldMap: React.FC = () => {
               {isStartRoom && <span className={styles.startBadge}>⭐ Startrum</span>}
               {!isStartRoom && ui.activeRoomId && (
                 <button
-                  className={styles.setStartBtn}
+                  className={`${styles.setStartBtn} ${superInRoomStep ? styles.superDim : ''}`}
                   onClick={() =>
                     setStartRoom(
                       ui.activeRoomId!,
@@ -629,7 +632,7 @@ export const WorldMap: React.FC = () => {
               )}
 
               {/* Room navigation arrows */}
-              <div className={styles.roomNavBtns}>
+              <div className={`${styles.roomNavBtns} ${superInRoomStep ? styles.superDim : ''}`}>
                 <button
                   className={styles.roomNavBtn}
                   disabled={!adjacentRooms.up}
@@ -674,21 +677,24 @@ export const WorldMap: React.FC = () => {
               >
                 ✏️ Rita
               </button>
+              {/* Fyll/Radera/Startpos aren't part of the Super handlett läge
+                  script (only "rita ut" is) — greyed out during that step so
+                  they don't read as extra things to try first. */}
               <button
-                className={`${styles.toolBtn} ${roomTool === 'fill' && !isEraseMode ? styles.active : ''}`}
+                className={`${styles.toolBtn} ${roomTool === 'fill' && !isEraseMode ? styles.active : ''} ${superInRoomStep ? styles.superDim : ''}`}
                 onClick={() => { setRoomTool('fill'); setIsEraseMode(false); }}
               >
                 🪣 Fyll
               </button>
               <button
-                className={`${styles.toolBtn} ${isEraseMode ? styles.active : ''}`}
+                className={`${styles.toolBtn} ${isEraseMode ? styles.active : ''} ${superInRoomStep ? styles.superDim : ''}`}
                 onClick={() => setIsEraseMode((v) => !v)}
               >
                 ⬜ Radera
               </button>
               {isStartRoom && (
                 <button
-                  className={`${styles.toolBtn} ${styles.spawnToolBtn} ${roomTool === 'spawn' && !isEraseMode ? styles.active : ''}`}
+                  className={`${styles.toolBtn} ${styles.spawnToolBtn} ${roomTool === 'spawn' && !isEraseMode ? styles.active : ''} ${superInRoomStep ? styles.superDim : ''}`}
                   onClick={() => { setRoomTool('spawn'); setIsEraseMode(false); }}
                   title="Klicka en cell för att sätta startposition"
                 >
@@ -706,17 +712,19 @@ export const WorldMap: React.FC = () => {
           <div className={styles.roomView}>
             {activeRoom && ui.activeRoomId ? (
               <div className={styles.roomNavGrid}>
-                <div className={styles.navUp}>
+                <div className={`${styles.navUp} ${superInRoomStep ? styles.superDim : ''}`}>
                   <NavArrowBtn dir="up" roomId={adjacentRooms.up} roomName={adjacentRooms.up ? rooms[adjacentRooms.up]?.name : undefined} onNavigate={handleOpenRoom} />
                 </div>
-                <div className={styles.navLeft}>
+                <div className={`${styles.navLeft} ${superInRoomStep ? styles.superDim : ''}`}>
                   <NavArrowBtn dir="left" roomId={adjacentRooms.left} roomName={adjacentRooms.left ? rooms[adjacentRooms.left]?.name : undefined} onNavigate={handleOpenRoom} />
                 </div>
                 <div className={`${styles.navCanvas} ${(ui.onboardingHint === 'place-tile' || superInRoomStep) ? styles.navCanvasHighlight : ''}`}>
                   {(ui.onboardingHint === 'place-tile' || superInRoomStep) && (
-                    <div className={styles.pointerArrow}>
-                      <span className={styles.pointerArrowIcon}>⬇️</span>
-                      <span>Klicka här!</span>
+                    <div className={styles.pointerArrowAnchorTop}>
+                      <div className={styles.pointerArrow}>
+                        <span className={styles.pointerArrowIcon}>⬇️</span>
+                        <span>Klicka här!</span>
+                      </div>
                     </div>
                   )}
                   <RoomCanvas
@@ -728,10 +736,10 @@ export const WorldMap: React.FC = () => {
                     onOnboardingPlaceTile={() => setViewMode('room')}
                   />
                 </div>
-                <div className={styles.navRight}>
+                <div className={`${styles.navRight} ${superInRoomStep ? styles.superDim : ''}`}>
                   <NavArrowBtn dir="right" roomId={adjacentRooms.right} roomName={adjacentRooms.right ? rooms[adjacentRooms.right]?.name : undefined} onNavigate={handleOpenRoom} />
                 </div>
-                <div className={styles.navDown}>
+                <div className={`${styles.navDown} ${superInRoomStep ? styles.superDim : ''}`}>
                   <NavArrowBtn dir="down" roomId={adjacentRooms.down} roomName={adjacentRooms.down ? rooms[adjacentRooms.down]?.name : undefined} onNavigate={handleOpenRoom} />
                 </div>
               </div>

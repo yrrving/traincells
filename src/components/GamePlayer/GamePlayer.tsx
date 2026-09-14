@@ -10,6 +10,7 @@ import {
 } from '../../runtime/engine';
 import type { GameState, InputState } from '../../runtime/engine';
 import { ROOM_SIZE } from '../../models/types';
+import { ShareGameModal } from './ShareGameModal';
 import styles from './GamePlayer.module.css';
 
 const ROOM_PX = ROOM_SIZE * TILE_SIZE; // 624
@@ -41,6 +42,11 @@ export const GamePlayer: React.FC = () => {
   // effekt → vill du testa en variant?
   const [showInvite, setShowInvite] = useState(false);
   const [inviteDismissed, setInviteDismissed] = useState(false);
+
+  // "Redo att visa upp ditt spel?" — always available once there's a
+  // playable project, never forced: the besökare opens it whenever THEY
+  // feel done, regardless of which start mode they used.
+  const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
     setShowInvite(false);
@@ -202,6 +208,13 @@ export const GamePlayer: React.FC = () => {
         <button className={styles.restartBtn} onClick={restart} title="Starta om (R)">
           🔄 Starta om
         </button>
+        <button
+          className={styles.shareBtn}
+          onClick={() => setShowShareModal(true)}
+          title="Spara eller dela ditt spel"
+        >
+          🚀 Dela mitt spel
+        </button>
         <div className={styles.speedBtns}>
           <span className={styles.speedLabel}>Hastighet:</span>
           {([0.6, 1.0, 1.5] as const).map((s) => (
@@ -295,6 +308,10 @@ export const GamePlayer: React.FC = () => {
       <div className={styles.hint}>
         Tangentbord: ← → hoppa med Mellanslag / W / ↑ &nbsp;|&nbsp; R = starta om
       </div>
+
+      {showShareModal && (
+        <ShareGameModal project={project} onClose={() => setShowShareModal(false)} />
+      )}
     </div>
   );
 };

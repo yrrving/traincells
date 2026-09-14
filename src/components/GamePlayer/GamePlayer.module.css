@@ -110,6 +110,26 @@
   color: #fff;
 }
 
+/* Always available once there's a playable project — the "what's next"
+   step for a besökare who built their game the free way and now considers
+   it done. Accent-colored (unlike the neutral restartBtn) so it reads as
+   the one thing here worth actively noticing, not just another tool. */
+.shareBtn {
+  padding: 6px 14px;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.shareBtn:hover {
+  background: var(--accent-hover);
+}
+
 .speedBtns {
   display: flex;
   align-items: center;

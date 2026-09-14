@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative; /* anchors the floating .onboardingBanner below */
 }
 
 .worldmap {
@@ -11,21 +12,39 @@
   overflow: hidden;
 }
 
+/* Floats OVER the editor instead of taking its own row that pushes every
+   panel down — big, high-contrast, impossible to mistake for part of the
+   normal toolbar. See Nirre's feedback (2026-09). */
 .onboardingBanner {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 16px;
-  background: var(--accent-glow);
-  border-bottom: 1px solid var(--accent);
-  font-size: 0.88rem;
+  justify-content: center;
+  gap: 14px;
+  padding: 14px 22px;
+  background: var(--bg-panel);
+  border: 2px solid var(--accent);
+  border-radius: 16px;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--text-primary);
-  flex-shrink: 0;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.55);
+  max-width: min(600px, calc(100% - 24px));
+  text-align: center;
+  flex-wrap: wrap; /* superChoiceActions' two buttons wrap under the text on narrow screens */
+  /* Floating over the panels means it can end up over a real button (e.g.
+     the room canvas) — click-through by default, with pointer-events
+     re-enabled on the banner's own buttons below. */
+  pointer-events: none;
 }
 
 .onboardingBannerDone {
-  background: rgba(76, 163, 122, 0.22);
+  background: rgba(34, 90, 60, 0.95);
+  border-color: #4ca37a;
 }
 
 .onboardingClose {
@@ -35,6 +54,7 @@
   border-radius: 50%;
   color: var(--text-dim);
   font-size: 0.75rem;
+  pointer-events: auto;
 }
 
 .onboardingClose:hover {
@@ -53,6 +73,7 @@
   font-size: 0.85rem;
   white-space: nowrap;
   animation: onboardingPulse 1s ease-in-out infinite;
+  pointer-events: auto;
 }
 
 .superContinueBtn:hover {
@@ -71,33 +92,45 @@
   flex-shrink: 0;
 }
 
-/* Big, unmissable bouncing arrow + label pointing at exactly what to click. */
+/* Big, unmissable bouncing arrow + label pointing at exactly what to click.
+   Always used inside a .pointerArrowAnchor* wrapper (below) that does the
+   absolute positioning — this class only does the look + the bounce. */
 .pointerArrow {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
   width: fit-content;
-  margin: 0 auto 6px;
-  padding: 8px 18px;
+  padding: 10px 22px;
   background: var(--accent);
-  border-radius: 14px;
-  font-size: 1.05rem;
+  border-radius: 16px;
+  font-size: 1.25rem;
   font-weight: 800;
   color: #fff;
   text-align: center;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.5);
   animation: pointerBounce 0.7s ease-in-out infinite;
 }
 
 .pointerArrowIcon {
-  font-size: 1.6rem;
+  font-size: 2.1rem;
   line-height: 1.1;
 }
 
 @keyframes pointerBounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(8px); }
+  50% { transform: translateY(10px); }
+}
+
+/* Floats centered over whatever sits below/behind it (here: the room
+   canvas) instead of reserving its own row above it. */
+.pointerArrowAnchorTop {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  pointer-events: none;
 }
 
 .navCanvasHighlight {
@@ -105,6 +138,15 @@
   outline-offset: 4px;
   border-radius: 8px;
   animation: highlightGlow 1s ease-in-out infinite;
+}
+
+/* Greys out UI that isn't part of the current Super handlett läge sub-step
+   (see ArtBoard.module.css for the same class / rationale). */
+.superDim {
+  opacity: 0.35;
+  filter: grayscale(70%);
+  pointer-events: none;
+  transition: opacity 0.2s, filter 0.2s;
 }
 
 @keyframes highlightGlow {
@@ -423,7 +465,7 @@
 
 .navUp     { grid-area: up;     width: 100%; }
 .navLeft   { grid-area: left;   height: 100%; }
-.navCanvas { grid-area: canvas; }
+.navCanvas { grid-area: canvas; position: relative; }
 .navRight  { grid-area: right;  height: 100%; }
 .navDown   { grid-area: down;   width: 100%; }
 

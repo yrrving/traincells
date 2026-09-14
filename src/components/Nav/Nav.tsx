@@ -1,7 +1,7 @@
 import React from 'react';
 import { useStore, goHomeWithSavePrompt } from '../../store/useStore';
 import type { AppMode } from '../../models/types';
-import { exportGameAsHTML } from '../../export/exportService';
+import { exportGameAsHTML, exportProjectJSON } from '../../export/exportService';
 import styles from './Nav.module.css';
 
 interface StepDef {
@@ -36,14 +36,7 @@ export const Nav: React.FC = () => {
 
   const handleExport = () => {
     if (!project) return;
-    const json = JSON.stringify(project, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${project.name.replace(/\s+/g, '-')}.bloxels.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    exportProjectJSON(project);
   };
 
   return (
@@ -81,17 +74,24 @@ export const Nav: React.FC = () => {
           const completedStage = RETURN_HINT_STAGE[ui.onboardingHint ?? ''];
           const superDone = ui.superFlow?.step === 'done';
           const isPointerTarget = step.id === 'gametest' && (completedStage !== undefined || superDone);
+          // Super handlett läge is deliberately linear (see UIState.superFlow
+          // in models/types.ts) — grey out every other step tab while a step
+          // is active so there's only ever one place that looks pressable.
+          // The tab for whatever screen the step is actually happening on
+          // stays normal (isActive), and "Spela" lights up instead once the
+          // flow reaches 'done'.
+          const superLocked = !!ui.superFlow && !isActive && !isPointerTarget;
           return (
             <button
               key={step.id}
               className={[
                 styles.stepTab,
                 isActive ? styles.stepActive : '',
-                locked ? styles.disabled : '',
+                (locked || superLocked) ? styles.disabled : '',
                 isPointerTarget ? styles.stepTabHighlight : '',
               ].join(' ')}
               onClick={() => {
-                if (locked) return;
+                if (locked || superLocked) return;
                 setMode(step.id);
                 if (completedStage !== undefined) {
                   setOnboardingHint(null);

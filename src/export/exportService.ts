@@ -1,6 +1,21 @@
 import type { Project } from '../models/types';
 import { ART_SIZE, ROOM_SIZE } from '../models/types';
 
+// Downloads the raw project as JSON — re-importable via importProjectFromJSON
+// (HomeScreen), so this is the "continue editing later" file, as opposed to
+// exportGameAsHTML's standalone playable one. Shared by Nav's "💾 Projekt"
+// button and ShareGameModal's "spara på min enhet" step.
+export function exportProjectJSON(project: Project): void {
+  const json = JSON.stringify(project, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${project.name.replace(/\s+/g, '-')}.bloxels.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // Generates a completely self-contained, playable HTML file
 export function exportGameAsHTML(project: Project): void {
   const html = buildStandaloneHTML(project);

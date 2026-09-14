@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative; /* anchors the floating .onboardingBanner below */
 }
 
 .artboard {
@@ -12,21 +13,41 @@
   gap: 0;
 }
 
+/* Floats OVER the editor instead of taking its own row that pushes every
+   panel down — big, high-contrast, impossible to mistake for part of the
+   normal toolbar. See Nirre's feedback (2026-09): the old thin in-flow bar
+   read as "baked into" the UI rather than as an instruction on top of it. */
 .onboardingBanner {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 16px;
-  background: var(--accent-glow);
-  border-bottom: 1px solid var(--accent);
-  font-size: 0.88rem;
+  justify-content: center;
+  gap: 14px;
+  padding: 14px 22px;
+  background: var(--bg-panel);
+  border: 2px solid var(--accent);
+  border-radius: 16px;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--text-primary);
-  flex-shrink: 0;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.55);
+  max-width: min(600px, calc(100% - 24px));
+  text-align: center;
+  flex-wrap: wrap;
+  /* Floating over the panels means it can end up over a real button (e.g.
+     the tile library's "+" on a narrower window) — click-through by
+     default, with pointer-events re-enabled on the banner's own buttons
+     below, so it never silently eats a click meant for the UI underneath. */
+  pointer-events: none;
 }
 
 .onboardingBannerDone {
-  background: rgba(76, 163, 122, 0.22);
+  background: rgba(34, 90, 60, 0.95);
+  border-color: #4ca37a;
 }
 
 .onboardingClose {
@@ -36,6 +57,7 @@
   border-radius: 50%;
   color: var(--text-dim);
   font-size: 0.75rem;
+  pointer-events: auto;
 }
 
 .onboardingClose:hover {
@@ -54,6 +76,7 @@
   font-size: 0.85rem;
   white-space: nowrap;
   animation: onboardingPulse 1s ease-in-out infinite;
+  pointer-events: auto;
 }
 
 .superContinueBtn:hover {
@@ -65,33 +88,98 @@
   50% { transform: scale(1.05); }
 }
 
-/* Big, unmissable bouncing arrow + label pointing at exactly what to click. */
+/* Big, unmissable bouncing arrow + label pointing at exactly what to click.
+   Always used inside a .pointerArrowAnchor* wrapper (below) that does the
+   absolute positioning — this class only does the look + the bounce, so
+   the bounce's translateY doesn't fight the anchor's own transform. */
 .pointerArrow {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
   width: fit-content;
-  margin: 6px auto;
-  padding: 8px 18px;
+  padding: 10px 22px;
   background: var(--accent);
-  border-radius: 14px;
-  font-size: 1.05rem;
+  border-radius: 16px;
+  font-size: 1.25rem;
   font-weight: 800;
   color: #fff;
   text-align: center;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.5);
   animation: pointerBounce 0.7s ease-in-out infinite;
 }
 
 .pointerArrowIcon {
-  font-size: 1.6rem;
+  font-size: 2.1rem;
   line-height: 1.1;
 }
 
 @keyframes pointerBounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(8px); }
+  50% { transform: translateY(10px); }
+}
+
+/* Floats centered over whatever sits below it in the panel (a canvas, a
+   palette) instead of reserving its own row above it. */
+.pointerArrowAnchorTop {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  pointer-events: none;
+}
+
+/* Small target in a narrow (200px) panel — the full-size .pointerArrow
+   bubble is wider than the panel and swallows the button it's supposed to
+   point at (see Nirre's screenshot, 2026-09: "+"  completely hidden under
+   it). Compact size + positioned just BELOW the header instead of on top
+   of it, so the button itself stays fully visible and clickable. */
+.pointerArrowCompact {
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  border-radius: 10px;
+}
+
+/* For a compact arrow whose target sits ABOVE it (e.g. the tile library's
+   "+"): bounce up toward the target instead of the base .pointerArrow's
+   down-bounce (which points at targets below it). */
+.pointerArrowBounceUp {
+  animation: pointerBounceUp 0.7s ease-in-out infinite;
+}
+
+@keyframes pointerBounceUp {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.pointerArrowIconCompact {
+  font-size: 1.3rem;
+}
+
+.pointerArrowAnchorBelowRight {
+  position: absolute;
+  top: 50px;
+  right: 4px;
+  z-index: 60;
+  pointer-events: none;
+}
+
+/* Utility: gives an otherwise unstyled wrapper div the positioned context
+   a .pointerArrowAnchor* child needs, without touching its layout. */
+.pointerAnchorWrap {
+  position: relative;
+}
+
+/* Greys out a whole panel that isn't part of the current Super handlett
+   läge sub-step, so the one panel left at full color/opacity reads as the
+   only pressable thing on screen. Not fully inert (fixes/undo still work
+   from the keyboard) but pointer-events:none stops stray taps. */
+.superDim {
+  opacity: 0.35;
+  filter: grayscale(70%);
+  pointer-events: none;
+  transition: opacity 0.2s, filter 0.2s;
 }
 
 .canvasWrapHighlight {
@@ -122,6 +210,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative; /* anchors .pointerArrowAnchorTopRight over the "+" */
 }
 
 .panelHeader {
@@ -155,6 +244,14 @@
 }
 
 .addBtn:hover { background: var(--accent-hover); }
+
+/* Super handlett läge: the floating pointerArrow above the panel says
+   "click here" but doesn't say exactly where — this puts the pulse on the
+   actual button. */
+.addBtnHighlight {
+  animation: onboardingPulse 1s ease-in-out infinite;
+  box-shadow: 0 0 0 4px var(--accent-glow);
+}
 
 .tileList {
   flex: 1;
@@ -314,6 +411,7 @@
   align-items: center;
   width: 100%;
   max-width: min(416px, calc(100vh - 220px));
+  position: relative; /* anchors .pointerArrowAnchorTop over canvasWrap */
 }
 
 .toolRow {

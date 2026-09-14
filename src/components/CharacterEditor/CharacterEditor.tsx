@@ -176,15 +176,22 @@ export const CharacterEditor: React.FC = () => {
               Rita din egen spelfigur med animationer.<br />
               Den ersätter automatiskt standardfiguren när du spelar.
             </p>
-            {superCharacterStep && (
-              <div className={styles.pointerArrow}>
-                <span className={styles.pointerArrowIcon}>⬇️</span>
-                <span>Klicka här!</span>
-              </div>
-            )}
-            <button className={styles.createBtn} onClick={initPlayerCharacter}>
-              ✏️ Skapa karaktär
-            </button>
+            <div className={styles.pointerAnchorWrap}>
+              {superCharacterStep && (
+                <div className={styles.pointerArrowAnchorAbove}>
+                  <div className={styles.pointerArrow}>
+                    <span className={styles.pointerArrowIcon}>⬇️</span>
+                    <span>Klicka här!</span>
+                  </div>
+                </div>
+              )}
+              <button
+                className={`${styles.createBtn} ${superCharacterStep ? styles.createBtnHighlight : ''}`}
+                onClick={initPlayerCharacter}
+              >
+                ✏️ Skapa karaktär
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -314,7 +321,12 @@ export const CharacterEditor: React.FC = () => {
           Allt du ritar här används direkt som spelfigur — tryck på{' '}
           <strong>▶ Spela</strong> för att testa.
         </span>
-        <button className={styles.resetBtn} onClick={handleReset}>
+        {/* Greyed out during Super handlett läge's character step — resetting
+            here would throw away the progress the flow is guiding toward. */}
+        <button
+          className={`${styles.resetBtn} ${ui.superFlow?.step === 'character' ? styles.superDim : ''}`}
+          onClick={handleReset}
+        >
           Återgå till standard
         </button>
       </div>
@@ -419,13 +431,15 @@ export const CharacterEditor: React.FC = () => {
             </button>
           </div>
         </div>
-        {ui.onboardingHint === 'paint-now' && (
-          <div className={styles.pointerArrow}>
-            <span className={styles.pointerArrowIcon}>⬇️</span>
-            <span>Rita här!</span>
-          </div>
-        )}
         <div className={`${styles.canvasWrap} ${ui.onboardingHint === 'paint-now' ? styles.canvasWrapHighlight : ''}`}>
+          {ui.onboardingHint === 'paint-now' && (
+            <div className={styles.pointerArrowAnchorTop}>
+              <div className={styles.pointerArrow}>
+                <span className={styles.pointerArrowIcon}>⬇️</span>
+                <span>Rita här!</span>
+              </div>
+            </div>
+          )}
           {currentFrame ? (
             <PixelCanvas
               pixels={currentFrame.pixels}
@@ -479,13 +493,16 @@ export const CharacterEditor: React.FC = () => {
         <div className={styles.panelHeader}>
           <span className={styles.panelTitle}>Palett</span>
         </div>
-        {ui.onboardingHint === 'change-color' && (
-          <div className={styles.pointerArrow}>
-            <span className={styles.pointerArrowIcon}>⬇️</span>
-            <span>Välj färg här!</span>
-          </div>
-        )}
-        <div className={`${styles.paletteGrid} ${ui.onboardingHint === 'change-color' ? styles.paletteGridHighlight : ''}`}>
+        <div className={styles.pointerAnchorWrap}>
+          {ui.onboardingHint === 'change-color' && (
+            <div className={styles.pointerArrowAnchorTop}>
+              <div className={`${styles.pointerArrow} ${styles.pointerArrowCompact}`}>
+                <span className={`${styles.pointerArrowIcon} ${styles.pointerArrowIconCompact}`}>⬇️</span>
+                <span>Välj färg här!</span>
+              </div>
+            </div>
+          )}
+          <div className={`${styles.paletteGrid} ${ui.onboardingHint === 'change-color' ? styles.paletteGridHighlight : ''}`}>
           {ART_EXTRA_COLORS.map((c) => (
             <button
               key={c}
@@ -498,6 +515,7 @@ export const CharacterEditor: React.FC = () => {
               title={c}
             />
           ))}
+          </div>
         </div>
       </div>
     </div>
