@@ -51,7 +51,8 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  /* Systemets eget gränssnittstypsnitt — inget hämtas från en extern server. */
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   background: var(--bg-darkest);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
