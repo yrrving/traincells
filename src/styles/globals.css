@@ -19,10 +19,12 @@
   /* ── Text ── */
   --text-primary: #eef0f4;
   --text-secondary: #9ca8b4;
-  --text-dim: #6b7888;
+  /* #6b7888 gav bara 4,07:1 mot den mörka bakgrunden. */
+  --text-dim: #78848f;
 
   /* ── Brand accent (green as primary action color) ── */
-  --accent: #4CA37A;
+  /* Vit text på #4CA37A gav 3,08:1. #357A5A ger 5,14:1 och samma färgton. */
+  --accent: #357A5A;
   --accent-hover: #016F3A;
   --accent-glow: rgba(76, 163, 122, 0.20);
 

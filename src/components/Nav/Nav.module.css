@@ -151,7 +151,10 @@
 }
 
 .disabled {
-  opacity: 0.3;
+  /* Stegen man inte nått än talar om vad som kommer — de måste gå att läsa.
+     Vid opacity 0.3 låg texten på 1,78:1 mot bakgrunden, i praktiken osynlig.
+     0.75 ger 4,76:1 och dämpar fortfarande tydligt. */
+  opacity: 0.75;
   pointer-events: none;
 }
 
